@@ -10,6 +10,8 @@ document.querySelector('#app').innerHTML = `
         <div class="p-2"><button type="button" class="btn btn-primary" id="text-chunking-btn">Text Chunking</button></div>
         <div class="p-2"><button type="button" class="btn btn-primary" id="challenge-btn">Challenge</button></div>
         <div class="p-2"><button type="button" class="btn btn-primary" id="manage-multi-matches-btn">Manage multiple matches</button></div>
+
+        <div class="p-2"><a href="/ai_chatbot.html" >AI Chatbot</a></div>
       </div>
     </div>
   </div>
