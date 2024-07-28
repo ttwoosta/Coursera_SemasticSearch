@@ -12,6 +12,7 @@ document.querySelector('#app').innerHTML = `
         <div class="p-2"><button type="button" class="btn btn-primary" id="manage-multi-matches-btn">Manage multiple matches</button></div>
 
         <div class="p-2"><a href="/ai_chatbot.html" >AI Chatbot</a></div>
+        <div class="p-2"><a href="/agent/index.html">Agent</a></div>
       </div>
     </div>
   </div>
