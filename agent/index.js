@@ -268,3 +268,54 @@ async function functionCalling(query) {
     }
   }
 }
+
+const autoFuncCallBtn = document.getElementById('auto-func-calling-btn');
+autoFuncCallBtn.onclick = async (e) => {
+  autoFuncCallBtn.disabled = true;
+  await autoFunctionCalling(promptEle.value);
+  autoFuncCallBtn.disabled = false;
+}
+
+async function autoFunctionCalling(query) {
+  const messages = [
+    { role: "system", content: "You are a helpful AI agent. Give highly specific answers based on the information you're provided. Prefer to gather information with the tools provided to you rather than giving basic, generic answers." },
+    { role: "user", content: query }
+  ];
+
+  // https://github.com/openai/openai-node/tree/master#automated-function-calls
+  const runner = openai.beta.chat.completions.runTools({
+    model: 'gpt-3.5-turbo',
+    messages,
+    tools: [
+      {
+        type: 'function',
+        function: {
+          function: getCurrentWeather,
+          parameters: {
+            type: 'object',
+            parse: JSON.parse,
+            properties: {
+              location: {
+                type: "string",
+                description: "The location from where to get the weather"
+              },
+              unit: {
+                type: "string",
+                enum: ["celcius", "fahrenheit"]
+              }
+            }
+          }
+        }
+      },
+      {
+        type: 'function',
+        function: {
+          function: getLocation,
+          parameters: { type: 'object', properties: {}}
+        }
+      }
+    ]
+  }).on('message', (message) => console.log(message));
+
+  const finalContent = await runner.finalContent();
+}
