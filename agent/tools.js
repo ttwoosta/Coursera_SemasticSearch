@@ -1,5 +1,8 @@
 
-export async function getCurrentWeather() {
+export async function getCurrentWeather({ location, unit = 'fahrenheit'}) {
+	console.debug("Location: " + location);
+	console.debug("Unit: " + unit);
+	
 	const weather = {
 		temperature: "72",
 		unit: 'F',

@@ -91,7 +91,7 @@ const systemPrompt = `
 */
 
 const promptEle = document.getElementById('agent-prompt');
-promptEle.value = "Give me a list of activity ideas based on my current location.";
+promptEle.value = "What's the current weather in Tokyo and New York city?";
 
 
 document.getElementById('agent-btn').onclick = async (e) => {
@@ -115,7 +115,7 @@ async function agent(query) {
     { role: 'user', content: query }
   ];
 
-  
+
   const MAX_ITERATIONS = 5;
 
   for (let index = 0; index < MAX_ITERATIONS; index++) {
@@ -174,4 +174,97 @@ async function performAction(line) {
     throw new Error(`Unknown action: ${action}: ${actionArg}`);
   }
 
+}
+
+
+const funcCallBtn = document.getElementById('func-calling-btn');
+funcCallBtn.onclick = async (e) => {
+  funcCallBtn.disabled = true;
+  await functionCalling(promptEle.value);
+  funcCallBtn.disabled = false;
+};
+
+async function functionCalling(query) {
+  const messages = [
+    { role: "system", content: "You are a helpful AI agent. Give highly specific answers based on the information you're provided. Prefer to gather information with the tools provided to you rather than giving basic, generic answers." },
+    { role: "user", content: query }
+  ]
+
+  const MAX_ITERATIONS = 5
+
+  for (let i = 0; i < MAX_ITERATIONS; i++) {
+    console.log(`Iteration #${i + 1}`)
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages,
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "getCurrentWeather",
+            description: "Get the current weather",
+            parameters: {
+              type: "object",
+              properties: {
+                location: {
+                  type: "string",
+                  description: "The location from where to get the weather"
+                },
+                unit: {
+                  type: "string",
+                  enum: ["celcius", "fahrenheit"]
+                }
+              }
+            }
+          }
+        },
+        {
+          type: "function",
+          function: {
+            name: "getLocation",
+            description: "Get the user's current location",
+            parameters: {
+              type: "object",
+              properties: {}
+            }
+          }
+        },
+      ]
+    })
+
+    //const responseText = response.choices[0].message.content
+    const choice = response.choices[0];
+    console.log(choice);
+
+    const { finish_reason: finishReason, message } = response.choices[0]
+    const { tool_calls: toolCalls } = message
+
+    messages.push(message);
+
+    if (choice.finish_reason === 'stop') {
+      // return the result
+      console.log(choice.message.content);
+      console.log("AGENT ENDING");
+      return;
+    }
+    else if (choice.finish_reason === 'tool_calls') {
+      // call the functions
+      for (const tool of choice.message.tool_calls) {
+        let funcName = tool.function.name;
+        let arg = JSON.parse(tool.function.arguments);
+        let observation = await _availableFunctions[funcName](arg);
+        console.debug(observation);
+
+        // append results
+        messages.push({
+          tool_call_id: tool.id,
+          role: 'tool',
+          tool: funcName,
+          content: observation
+        });
+
+        // continue
+      }
+    }
+  }
 }
