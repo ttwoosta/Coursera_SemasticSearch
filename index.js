@@ -14,6 +14,8 @@ document.querySelector('#app').innerHTML = `
         <div class="p-2"><a href="/ai_chatbot.html" >AI Chatbot</a></div>
         <div class="p-2"><a href="/agent/index.html">Agent</a></div>
         <div class="p-2"><a href="/agent_ui/index.html">Agent UI Chat Window</a></div>
+        
+        <div class="p-2"><a href="/ai_assistant/index.html">OpenAI Assistant</a></div>
       </div>
     </div>
   </div>
